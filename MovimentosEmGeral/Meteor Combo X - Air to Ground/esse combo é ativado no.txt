@@ -1,0 +1,1 @@
+esse combo é ativado no x do meteor ou seja no ultimo golpe, esse em especifico joga o player do ar para o chão porém não sei se meu game irá ter essa mecanica de céu jogavel.

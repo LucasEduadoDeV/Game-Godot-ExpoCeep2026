@@ -1,0 +1,1 @@
+Usar o TransitionSoftKickStand antes do sprite do softkickstand tocar.

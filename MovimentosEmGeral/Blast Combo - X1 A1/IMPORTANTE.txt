@@ -1,0 +1,1 @@
+depois do ultimo frame tem que rodar o frame de transition do ki blast para idle/stand

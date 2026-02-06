@@ -1,21 +1,81 @@
-[gd_scene load_steps=7 format=3 uid="uid://2nfvkrpb2tov"]
+[gd_scene load_steps=15 format=3 uid="uid://2nfvkrpb2tov"]
 
 [ext_resource type="Script" uid="uid://d2sotgj8pf70a" path="res://Scripts/player_1.gd" id="1_jc8px"]
 [ext_resource type="Script" uid="uid://dd2fbx4kb2kq4" path="res://Entities/character_body_2d.gd" id="2_qob32"]
-[ext_resource type="Texture2D" uid="uid://ccrct4wkq4kur" path="res://Sprite/Assests Goku Cortado.png" id="3_qob32"]
+[ext_resource type="Texture2D" uid="uid://c8xu8q6pa3wi7" path="res://Sprite/Goku/Goku - Novo/Idle/Idle.png" id="3_qob32"]
+[ext_resource type="Texture2D" uid="uid://jobqdta3bb0y" path="res://Sprite/Goku/Goku - Novo/Walk/Walk.png" id="4_8t5cc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8t5cc"]
 atlas = ExtResource("3_qob32")
-region = Rect2(200, 100, 50, 100)
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_typky"]
+atlas = ExtResource("3_qob32")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2l8xj"]
+atlas = ExtResource("3_qob32")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f7mxg"]
+atlas = ExtResource("3_qob32")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eoftn"]
+atlas = ExtResource("4_8t5cc")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s42a1"]
+atlas = ExtResource("4_8t5cc")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7u5rf"]
+atlas = ExtResource("4_8t5cc")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4uwsn"]
+atlas = ExtResource("4_8t5cc")
+region = Rect2(192, 0, 64, 64)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_typky"]
 animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_8t5cc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_typky")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2l8xj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f7mxg")
 }],
 "loop": true,
 "name": &"idle",
+"speed": 6.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"jump",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eoftn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s42a1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7u5rf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4uwsn")
+}],
+"loop": true,
+"name": &"walk",
 "speed": 5.0
 }]
 
@@ -23,7 +83,6 @@ animations = [{
 size = Vector2(23, 44)
 
 [node name="Player1" type="Node2D"]
-position = Vector2(105, 183)
 script = ExtResource("1_jc8px")
 metadata/_edit_vertical_guides_ = [93.0]
 metadata/_edit_horizontal_guides_ = [184.0]
@@ -33,7 +92,9 @@ script = ExtResource("2_qob32")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
 sprite_frames = SubResource("SpriteFrames_typky")
-animation = &"idle"
+animation = &"walk"
+autoplay = "idle"
+frame_progress = 0.41254756
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 visible = false
