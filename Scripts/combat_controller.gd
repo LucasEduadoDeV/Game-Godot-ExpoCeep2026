@@ -42,6 +42,30 @@ func start_attack2():
 	update_hurtbox_state()
 	anima.play("SoftKickStand_HardAttack")
 	
+func start_attack3():
+	if attacking:
+		return
+		
+	attacking = true
+	update_hurtbox_state()
+	anima.play("SoftKickCrouch_HardAttack")
+	
+func start_attack4():
+	if attacking:
+		return
+		
+	attacking = true
+	update_hurtbox_state()
+	anima.play("SoftPunchDash_LightAttack")
+	
+func start_attack5():
+	if attacking:
+		return
+		
+	attacking = true
+	update_hurtbox_state()
+	anima.play("SoftPunchCrouch_LightAttack")
+
 func update_hurtbox_state():
 	if attacking == false:
 		HurtBoxStand.disabled = false
@@ -59,10 +83,24 @@ func _on_animation_finished(anim_name: StringName) -> void:
 		update_hurtbox_state()
 		character.change_state(character.STATES.IDLE)
 		
+	elif anim_name == "SoftKickCrouch_HardAttack":
+		attacking = false
+		update_hurtbox_state()
+		character.change_state(character.STATES.STATICCROUCH)
+		
+	elif anim_name == "SoftPunchDash_LightAttack":
+		attacking = false
+		update_hurtbox_state()
+		character.change_state(character.STATES.IDLE)
+		
+	elif anim_name == "SoftPunchCrouch_LightAttack":
+		attacking = false
+		update_hurtbox_state()
+		character.change_state(character.STATES.STATICCROUCH)
+	
 func change_visible_hitboxes_hurtboxes():
 	if attacking == true:
 		HitBox.visible = true
 		HurtBoxStand.visible = true
 	else:
 		HitBox.visible = false
-		HurtBoxStand.visible = false
