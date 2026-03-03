@@ -17,7 +17,7 @@ extends CharacterBody2D
 
 
 
-enum STATES { IDLE, WALK, JUMP, LANDING, CROUCH, UNCROUCH, BACKSTEP, DASH, ATTACK, ATTACK2, STANDGUARD, OFFSTANDGUARD, CROUCHGUARD, OFFCROUCHGUARD, ATTACK3, STATICCROUCH, ATTACK4, ATTACK5, EVADE, OFFEVADE, EVADELEFT}
+enum STATES { IDLE, WALK, JUMP, FALLJUMP, LANDING, CROUCH, UNCROUCH, BACKSTEP, DASH, ATTACK, ATTACK2, STANDGUARD, OFFSTANDGUARD, CROUCHGUARD, OFFCROUCHGUARD, ATTACK3, STATICCROUCH, ATTACK4, ATTACK5, ATTACK6, ATTACK7, ATTACK8, EVADE, OFFEVADE, EVADELEFT}
 var state: int = STATES.IDLE
 var facing_dir: int = 1
 
@@ -39,9 +39,9 @@ var evade_time: float = 0.20
 var evade_timer: float = 0.0
 
 const SPEED: float = 100.0
-const JUMP_VELOCITY: float = -630.0
-const DASH_SPEED: float = 340.0
-const DASH_ATTACK_SPEED: float = 260.0
+const JUMP_VELOCITY: float = -590.0
+const DASH_SPEED: float = 310.0
+const DASH_ATTACK_SPEED: float = 250.0
 const EVADE_SPEED: float = 400.0
 const BACK_SPEED: float = 250.0
 const HURTBOX_BASE_FACING := -1
@@ -50,8 +50,8 @@ const HURTBOX_BASE_FACING := -1
 
 var gravity: float = float(ProjectSettings.get_setting("physics/2d/default_gravity"))
 
-var gravity_up := gravity * 2.0
-var gravity_down := gravity * 3.5
+var gravity_up := gravity * 1.7
+var gravity_down := gravity * 2.5
 
 func _ready() -> void:
 	_update_sprite_flip()
@@ -68,7 +68,13 @@ func _physics_process(delta: float) -> void:
 	update_hitbox_direction()
 	update_hurtbox_facing()
 	flecha_direction()
-	print(facing_dir)
+	
+	if state == STATES.ATTACK7 and is_on_floor():
+		change_state(STATES.LANDING)
+	
+	if state == STATES.ATTACK8 and is_on_floor():
+		change_state(STATES.LANDING)
+	
 	if velocity.y < 0:
 	# SUBINDO
 		velocity.y += gravity_up * delta
@@ -80,13 +86,20 @@ func _physics_process(delta: float) -> void:
 		velocity.x = DASH_SPEED * facing_dir
 		dash_timer -= delta
 		
-		if Input.is_action_just_pressed("punch"):
+		if Input.is_action_just_pressed("punch") and dash_timer >= 0.15:
 			is_dashing = false
 			velocity.x = DASH_ATTACK_SPEED
 			change_state(STATES.ATTACK4)
 			return
 			
+		if Input.is_action_just_pressed("kick") and dash_timer >= 0.15:
+			is_dashing = false
+			velocity.x = DASH_ATTACK_SPEED
+			change_state(STATES.ATTACK6)
+			return
+			
 		if dash_timer <= 0.0:
+			dash_timer = 0
 			is_dashing = false
 			change_state(STATES.IDLE)
 			
@@ -102,6 +115,7 @@ func _physics_process(delta: float) -> void:
 			STATES.IDLE: state_idle()
 			STATES.WALK: state_walk()
 			STATES.JUMP:  state_jump()
+			STATES.FALLJUMP: state_fallJump()
 			STATES.LANDING: state_landing(delta)
 			STATES.CROUCH: state_crouch()
 			STATES.UNCROUCH: state_uncrouch()
@@ -112,6 +126,9 @@ func _physics_process(delta: float) -> void:
 			STATES.ATTACK3: $CombatController.start_attack3()
 			STATES.ATTACK4: $CombatController.start_attack4()
 			STATES.ATTACK5: $CombatController.start_attack5()
+			STATES.ATTACK6: $CombatController.start_attack6()
+			STATES.ATTACK7:$CombatController.start_attack7()
+			STATES.ATTACK8:$CombatController.start_attack8()
 			STATES.STANDGUARD: pass
 			STATES.OFFSTANDGUARD: pass
 			STATES.CROUCHGUARD: pass
@@ -129,7 +146,7 @@ func change_state(new_state: int) -> void:
 		HurtBoxStandNode2D.visible = true
 	if new_state == STATES.JUMP:
 		velocity.y = JUMP_VELOCITY
-		anima.play("hurtbox_jump")
+		anima.play("jump")
 		HurtBoxStand.disabled = true
 	if new_state == STATES.CROUCH: anima.play("crouch")
 	if new_state == STATES.DASH: anima.play("dash")
@@ -140,6 +157,8 @@ func change_state(new_state: int) -> void:
 	if new_state == STATES.JUMP: 
 		HurtBoxStandNode2D.visible = true
 		HurtBoxStand.disabled = true
+	if new_state == STATES.FALLJUMP:
+		anima.play("fall_jump")
 	if new_state == STATES.IDLE:
 		HurtBoxStandNode2D.visible = true
 		HurtBoxStand.disabled = false
@@ -155,11 +174,16 @@ func change_state(new_state: int) -> void:
 		velocity.x = -EVADE_SPEED
 	if new_state == STATES.OFFEVADE:
 		anima.play("offEvade")
-
+	if new_state == STATES.ATTACK7:
+		gravity_down = gravity * 2.5
+	if new_state == STATES.ATTACK8:
+		gravity_down = gravity * 3.0
+	
 func state_idle() -> void:
 	if $CombatController.attacking:
 		return
 	
+	gravity_down = gravity * 3.5
 	anima.play("idle"); velocity.x = 0
 	if Input.is_action_pressed("right") or Input.is_action_pressed("left"): change_state(STATES.WALK); return
 	if Input.is_action_just_pressed("jump") and is_on_floor(): change_state(STATES.JUMP); return
@@ -188,7 +212,16 @@ func state_walk() -> void:
 	
 
 func state_jump() -> void:
-	if is_on_floor(): change_state(STATES.LANDING)
+	if Input.is_action_just_pressed("kick"):
+		change_state(STATES.ATTACK7)
+	if Input.is_action_just_pressed("punch"):
+		change_state(STATES.ATTACK8)
+		
+func state_fallJump() -> void:
+	if Input.is_action_just_pressed("kick"):
+		change_state(STATES.ATTACK7)
+	if Input.is_action_just_pressed("punch"):
+		change_state(STATES.ATTACK8)
 
 func state_landing(_delta: float) -> void:
 	velocity.x = 0; anima.play("landing")
@@ -207,6 +240,7 @@ func state_uncrouch() -> void:
 func state_dash() -> void:
 	if not is_dashing: change_state(STATES.IDLE)
 	if Input.is_action_just_pressed("punch"): change_state(STATES.ATTACK4)
+	if Input.is_action_just_pressed("kick"): change_state(STATES.ATTACK6)
 			
 func state_backstep() -> void:
 	if not is_backstepping: change_state(STATES.IDLE)
@@ -274,6 +308,12 @@ func _on_animation_finished(anim_name: StringName) -> void:
 	elif anim_name == "evade_left":
 		change_state(STATES.IDLE)
 		FlechaNode2D.scale.x = -1
+		
+	elif anim_name == "jump":
+		change_state(STATES.FALLJUMP)
+	
+	elif anim_name == "fall_jump":
+		change_state(STATES.LANDING)
 		
 		
 func dash_enable() -> void:
